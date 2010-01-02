@@ -28,7 +28,7 @@ Useful for coordination, command and control of distributed ruby processes
 
 
 Currently for each mailbox you declare we spin up a thread that does a
-10 second timeout BLPOP against a redis list named after the mailbox. For each message in the mailbox we will instantiate on of your Foo actor objects and pass in the redis connection in the initialize method so that you can access @redis to talk to redis directly or use send_msg(mailbox, message) to send a message along to another actor. When you call mailbox :foo you need to define an instance method Foo#recieve_foo(msg)
+10 second timeout BLPOP in a loop against a redis list named after the mailbox. For each message in the mailbox we will instantiate on of your Foo actor objects and pass in the redis connection in the initialize method so that you can access @redis to talk to redis directly or use send_msg(mailbox, message) to send a message along to another actor. When you call mailbox :foo you need to define an instance method Foo#recieve_foo(msg). Using threads like this is fairly cheap since they are green threads and they are spending most of their time either asleep blocking for data from redis or they are running your code processing messages in a thread safe way.
 
 TODO:
   create actor registry where actors can register their capabilities to
