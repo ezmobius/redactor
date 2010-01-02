@@ -5,26 +5,26 @@ Useful for coordination, command and control of distributed ruby processes
 
 # simple getting started example
 
-require 'redactor'
-
-class Foo < RedActor::Actor
+  require 'redactor'
   
-  mailbox :foo
-  mailbox :bar
-  
-  def recieve_foo(msg)
-    p [:recieve_foo, msg]
-    send_msg 'bar', msg
+  class Foo < RedActor::Actor
+    
+    mailbox :foo
+    mailbox :bar
+    
+    def recieve_foo(msg)
+      p [:recieve_foo, msg]
+      send_msg 'bar', msg
+    end
+    
+    def recieve_bar(msg)
+      p [:recieve_bar, msg]
+    end
+    
   end
   
-  def recieve_bar(msg)
-    p [:recieve_bar, msg]
-  end
   
-end
-
-
-RedActor.run
+  RedActor.run
 
 
 Currently for each mailbox you declare we spin up a thread that does a
