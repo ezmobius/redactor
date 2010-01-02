@@ -48,7 +48,7 @@ TODO:
 
     # on the recieving actor side:
     mailbox :foo
-    def recieve_foo(msg)
+    def receive_foo(msg)
       type, data = msg.split(':')
       data = JSON.parse(@redis[data])
       case type
