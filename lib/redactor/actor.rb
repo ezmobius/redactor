@@ -9,7 +9,7 @@ module RedActor
           loop do
             msg = redis.blpop(queue, 10)
             if msg
-              self.new(redis).__send__("recieve_#{queue}", msg)
+              self.new(redis).__send__("receive_#{queue}", msg)
             end
           end
         end
