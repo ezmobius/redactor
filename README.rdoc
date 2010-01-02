@@ -1,0 +1,61 @@
+== redactor
+
+And Agent/Actor based system written around the Redis key value store.
+Useful for coordination, command and control of distributed ruby processes
+
+# simple getting started example
+
+require 'redactor'
+
+class Foo < RedActor::Actor
+  
+  mailbox :foo
+  mailbox :bar
+  
+  def recieve_foo(msg)
+    p [:recieve_foo, msg]
+    send_msg 'bar', msg
+  end
+  
+  def recieve_bar(msg)
+    p [:recieve_bar, msg]
+  end
+  
+end
+
+
+RedActor.run
+
+
+Currently for each mailbox you declare we spin up a thread that does a
+10 second timeout BLPOP against a redis list named after the mailbox. For each message in the mailbox we will instantiate on of your Foo actor objects and pass in the redis connection in the initialize method so that you can access @redis to talk to redis directly or use send_msg(mailbox, message) to send a message along to another actor. When you call mailbox :foo you need to define an instance method Foo#recieve_foo(msg)
+
+TODO:
+  create actor registry where actors can register their capabilities to
+  allow for discovery of actors you want to subscribe to or send messages 
+  to.
+
+  create a scoring system for allowing a pool of actors working off the same 
+  mailbox and using the score to select where to route work
+
+  create a convention for identifying and passing work and data. use a  
+  system where the publisher places JSON encoded data in a key:
+    # sending a mesage passing data on redis
+    token = rand_token()
+    @redis[token] = data.to_json
+    msg = "feed:#{token}"
+    send_msg :foo, msg
+
+    # on the recieving actor side:
+    mailbox :foo
+    def recieve_foo(msg)
+      type, data = msg.split(':')
+      data = JSON.parse(@redis[data])
+      case type
+      when 'feed'
+        process_feed(data)
+      when 'resize'
+        resize_image(data)
+      end
+    end
+
